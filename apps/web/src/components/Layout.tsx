@@ -26,7 +26,9 @@ const Layout: FC<PropsWithChildren> = ({ children }) => (
           </div>
         </div>
         <div>
-          <h2 className="py-4">Dashboard</h2>
+          <Link className="py-4" href="/dashboard">
+            Dashboard
+          </Link>
         </div>
       </div>
       <div />
