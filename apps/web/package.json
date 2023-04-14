@@ -14,13 +14,17 @@
     "ethers": "^5.0.0",
     "framer-motion": "^7.3.6",
     "next": "^13.1.1",
+    "omz-module": "^1.0.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-modal": "^3.16.1",
     "sass": "^1.57.1",
+    "tailwind-merge": "^1.12.0",
     "typechain": "^8.1.0",
     "wagmi": "^0.12.10"
   },
   "devDependencies": {
+    "@svgr/webpack": "^7.0.0",
     "@types/node": "18.7.13",
     "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",
