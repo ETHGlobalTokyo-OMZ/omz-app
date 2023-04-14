@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "test": {},
+    "generate": {},
+    "lint": {
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "env": ["COINMARKETCAP_API_KEY"]
+    },
+    "sol:test": {
+      "outputs": ["coverage/**"]
+    },
+    "compile": {
+      "cache": false
+    },
+    "deploy": {
+      "cache": false
+    },
+    "start": { "cache": false }
+  }
+}
