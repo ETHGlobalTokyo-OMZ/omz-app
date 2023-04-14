@@ -3,7 +3,7 @@ import type { NextPage } from 'next';
 import useCounter from 'hooks/useCounter';
 import dynamic from 'next/dynamic';
 
-const ConnectButton = dynamic(() => import('../components/Button/ConnectButton'), {
+const ConnectButton = dynamic(() => import('../components/ConnectButton'), {
   ssr: false
 });
 

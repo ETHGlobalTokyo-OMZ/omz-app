@@ -6,6 +6,7 @@ import { polygonZkEvmTestnet } from 'wagmi/chains';
 
 import 'styles/globals.scss';
 import type { AppProps } from 'next/app';
+import Layout from 'components/Layout';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { provider } = configureChains([polygonZkEvmTestnet], [publicProvider()]);
@@ -17,7 +18,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   });
   return (
     <WagmiConfig client={client}>
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </WagmiConfig>
   );
 };

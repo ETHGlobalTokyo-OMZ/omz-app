@@ -10,11 +10,15 @@ const ConnectButton = () => {
     connector: new InjectedConnector()
   });
   const { disconnect } = useDisconnect();
+
   if (isConnected) {
     return (
-      <div>
+      <div className="group relative">
         <div>{address}</div>
-        <button type="button" onClick={() => disconnect()}>
+        <button
+          type="button"
+          className="absolute -bottom-[100%] right-1/2 hidden translate-x-[50%] group-hover:block"
+          onClick={() => disconnect()}>
           Disconnect
         </button>
       </div>
