@@ -5,6 +5,8 @@ import { publicProvider } from 'wagmi/providers/public';
 import { polygonZkEvmTestnet } from 'wagmi/chains';
 
 import 'styles/globals.scss';
+import 'react-tooltip/dist/react-tooltip.css';
+
 import type { AppProps } from 'next/app';
 import Layout from 'components/Layout';
 import { QueryClient, QueryClientProvider } from 'react-query';

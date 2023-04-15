@@ -23,17 +23,18 @@ const Home: NextPage = () => {
             <th className="py-3 px-4">Expired</th>
             <th className="py-3 px-4" />
           </tr>
-          {marketList.map((market) => (
-            <tr>
-              <td className="p-4 text-left">{market.sellTokenName}</td>
-              <td className="p-4 text-center">{`${market.sellTokenAmount} ${market.sellTokenName}`}</td>
-              <td className="p-4 text-center">{`${market.collateralTokenAmount} ${market.collateralTokenName}`}</td>
-              <td className="p-4 text-center">{market.listingTimestamp}</td>
-              <td className="p-4 text-center">
-                <button>Buy</button>
-              </td>
-            </tr>
-          ))}
+          {marketList &&
+            marketList.map((market) => (
+              <tr>
+                <td className="p-4 text-left">{market.sellTokenName}</td>
+                <td className="p-4 text-center">{`${market.sellTokenAmount} ${market.sellTokenName}`}</td>
+                <td className="p-4 text-center">{`${market.collateralTokenAmount} ${market.collateralTokenName}`}</td>
+                <td className="p-4 text-center">{market.listingTimestamp}</td>
+                <td className="p-4 text-center">
+                  <button>Buy</button>
+                </td>
+              </tr>
+            ))}
           <tr>
             <td className="p-4 text-left">ETH</td>
             <td className="p-4 text-center">1000 BOB</td>
