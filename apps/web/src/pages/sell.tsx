@@ -11,19 +11,27 @@ import { chainIdEnumToChainName } from 'constants/chain';
 import { ethers } from 'ethers';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ContractType, IContract, getContractsByChainID } from 'omz-module';
+import { ContractType, IContract, getContractsByChainID, TxManager, ISig } from 'omz-module';
 import { useEffect, useRef, useState } from 'react';
 import { shortenAddress } from 'utils/addresss';
-import { useAccount, useNetwork, useBalance, useSwitchNetwork } from 'wagmi';
+import { useAccount, useNetwork, useBalance, useSwitchNetwork, useSignMessage } from 'wagmi';
 import ChevronDownBoldIcon from 'assets/chevron-down-bold.svg';
 import CheckIcon from 'assets/check.svg';
 import { twMerge } from 'tailwind-merge';
+import { verifyMessage } from 'ethers/lib/utils';
 
 const Sell: NextPage = () => {
+  const signature = useRef<string>(null);
+
   const { address } = useAccount();
   const { chain: activeChain } = useNetwork();
   const { chains, switchNetwork } = useSwitchNetwork();
   const { data: balance } = useBalance({ address, chainId: activeChain?.id });
+  const { data, error, isLoading, signMessage } = useSignMessage();
+
+  const [amount, setAmount] = useState<number | undefined>(1);
+  const [collateral, setCollateral] = useState<number | undefined>(10);
+  const [price, setPrice] = useState<number | undefined>(1000);
 
   const chainSelectButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -33,22 +41,29 @@ const Sell: NextPage = () => {
     ? getContractsByChainID(activeChain.id) ?? []
     : [];
 
+  const sellerValutContract = tokenContracts.find(
+    (contract) => contract.type === ContractType.SELLER_VAULT
+  );
+
   const amountOrDepositTokens = tokenContracts.filter(
     (token) => token.type === ContractType.NATIVE_COIN
+  );
+  const defaultCollateralToken = tokenContracts.find(
+    (contract) => contract.type === ContractType.USDC
   );
 
   const [amountToken, setAmountToken] = useState<IContract | undefined>();
   const [collateralToken, setCollateralToken] = useState<IContract | undefined>();
 
+  console.log('collateralToken', collateralToken);
+
   const onSelectAmountToken = (token: IContract) => setAmountToken(token);
   const onSelectCollateralToken = (token: IContract) => setCollateralToken(token);
-
-  const router = useRouter();
 
   useEffect(() => {
     if (tokenContracts.length > 0) {
       setAmountToken(tokenContracts[0]);
-      setCollateralToken(tokenContracts[0]);
+      setCollateralToken(defaultCollateralToken);
     }
   }, [tokenContracts.length, activeChain?.id]);
 
@@ -63,6 +78,47 @@ const Sell: NextPage = () => {
 
     return () => window.removeEventListener('click', chainSelectCloseHandler);
   }, []);
+
+  useEffect(() => {
+    if (data && price && amount && collateral) {
+      const order = {
+        to: '0x0000000000000000000000000000000000000000',
+        bob_amount: (price * 10 ** 6).toString(),
+        sell_token: '0x0000000000000000000000000000000000000000',
+        sell_amount: (amount * 10 ** 18).toString(),
+        collateral_token: collateralToken?.address ?? '',
+        collateral_amount: (collateral * 10 ** 6).toString(),
+        time_lock_start: 0
+      };
+      const r = data.slice(0, 66);
+      const s = `0x${data.slice(66, 130)}`;
+      const v = parseInt(data.slice(130, 132), 16);
+      const txManager = new TxManager();
+      const txData = txManager.makeListSell(
+        activeChain?.rpcUrls.public.http.toString() ?? '',
+        activeChain?.id ?? 5,
+        order,
+        { r, s, v }
+      );
+      console.log('txData', txData);
+      window.ethereum
+        .request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: address, // The user's active address.
+              to: sellerValutContract?.address, // Required except during contract publications.
+              value: (3 * 10 ** 14).toString(), // Only required to send ether to the recipient from the initiating external account.
+              gasPrice: (30 * 10 ** 9).toString(), // customizable by user during MetaMask confirmation.
+              gas: '900000', // Customizable by the user during MetaMask confirmation.
+              data: txData
+            }
+          ]
+        })
+        .then((txHash) => console.log('txHash', txHash))
+        .catch((error) => console.error(error));
+    }
+  }, [data]);
 
   return (
     <div className="flex h-full w-full items-center justify-center">
@@ -118,6 +174,7 @@ const Sell: NextPage = () => {
               <label className="text-[15px] text-grey-4">Amount</label>
             </div>
             <TokenInput
+              value={amount}
               placeholder={
                 balance?.value
                   ? parseFloat(ethers.utils.formatEther(balance?.value)).toFixed(4).toString()
@@ -153,7 +210,40 @@ const Sell: NextPage = () => {
             </TokenInput>
           </div>
         </div>
-        <PrimaryButton onClick={() => router.push('/sell-complete')}>List to sell</PrimaryButton>
+        <PrimaryButton
+          onClick={async () => {
+            try {
+              if (price && amount && collateral) {
+                const order = {
+                  to: '0x0000000000000000000000000000000000000000',
+                  bob_amount: (price * 10 ** 6).toString(),
+                  sell_token: '0x0000000000000000000000000000000000000000',
+                  sell_amount: (amount * 10 ** 18).toString(),
+                  collateral_token: defaultCollateralToken?.address ?? '',
+                  collateral_amount: (collateral * 10 ** 6).toString(),
+                  time_lock_start: 0
+                };
+                const txManager = new TxManager();
+                console.log(
+                  activeChain?.rpcUrls.public.http.toString() ?? '',
+                  activeChain?.id ?? 5,
+                  address ?? '',
+                  order
+                );
+                const message = await txManager.getUserListHashData(
+                  activeChain?.rpcUrls.public.http.toString() ?? '',
+                  activeChain?.id ?? 5,
+                  address ?? '',
+                  order
+                );
+                signMessage({ message });
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }}>
+          List to sell
+        </PrimaryButton>
       </div>
     </div>
   );
