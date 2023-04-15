@@ -57,9 +57,9 @@ const ConnectButton = () => {
             disabled={!connector.ready}
             key={connector.id}
             onClick={() => connect({ connector })}>
-            Connect
+            {!isLoading && 'Connect'}
             {!connector.ready && ' (Unsupported)'}
-            {isLoading && connector.id === pendingConnector?.id && ' (Connecting)'}
+            {isLoading && connector.id === pendingConnector?.id && '(Connecting)'}
           </button>
         );
       })}
