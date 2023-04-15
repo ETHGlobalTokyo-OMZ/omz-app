@@ -6,7 +6,7 @@ import ArrowLeftRightBoldIcon from 'assets/arrow-left-right-bold.svg';
 import DashboardIcon from 'assets/dashboard.svg';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
-import SearchInput from './SearchInput';
+// import SearchInput from './SearchInput';
 
 const ConnectButton = dynamic(() => import('./ConnectButton'), {
   ssr: false

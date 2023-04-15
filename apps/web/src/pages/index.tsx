@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react/button-has-type */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import TokenIcon from 'components/TokenIcon';
@@ -29,7 +30,7 @@ const Home: NextPage = () => {
             <th className="py-3 px-4 text-left" />
           </tr>
           {marketList &&
-            marketList.map((market, index) => (
+            marketList.map((market: any, index: number) => (
               <tr>
                 <td className="p-4">
                   <div className="flex items-center gap-2">

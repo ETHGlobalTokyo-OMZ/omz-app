@@ -1,3 +1,4 @@
+/* eslint-disable react/button-has-type */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-shadow */
 import { shortenAddress } from 'utils/addresss';

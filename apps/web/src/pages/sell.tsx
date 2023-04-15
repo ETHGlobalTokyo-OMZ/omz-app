@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import PrimaryButton from 'components/PrimaryButton';
 import TokenIcon from 'components/TokenIcon';
 import TokenInput from 'components/TokenInput';

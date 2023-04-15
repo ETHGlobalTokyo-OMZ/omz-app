@@ -1,3 +1,4 @@
+/* eslint-disable react/button-has-type */
 import { NextPage } from 'next';
 
 import ArrowLeftRightIcon from 'assets/arrow-left-right.svg';

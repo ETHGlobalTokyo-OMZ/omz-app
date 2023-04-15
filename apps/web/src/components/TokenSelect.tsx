@@ -3,8 +3,6 @@ import Modal from 'react-modal';
 import ChevronDown from 'assets/chevron-down.svg';
 import { Token } from 'types';
 import CloseIcon from 'assets/close.svg';
-import Input from './TokenInput';
-import SearchInput from './SearchInput';
 import TokenIcon from './TokenIcon';
 
 interface TokenSelectProps {
