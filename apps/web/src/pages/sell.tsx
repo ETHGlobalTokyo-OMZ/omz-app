@@ -58,9 +58,7 @@ const Sell: NextPage = () => {
             </TokenInput>
           </div>
         </div>
-        <PrimaryButton onClick={() => router.push('/sell-complete')}>
-          Make a list to sell
-        </PrimaryButton>
+        <PrimaryButton onClick={() => router.push('/sell-complete')}>Create an order</PrimaryButton>
       </div>
     </div>
   );
