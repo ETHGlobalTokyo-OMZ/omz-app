@@ -20,7 +20,9 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokens, onSelectToken, selectedToke
     <div className="text-black relative flex flex-col">
       <button className="flex items-center gap-2" onClick={() => setIsSelectOpen(!isSelectOpen)}>
         <div className="flex items-center gap-1">
-          <TokenIcon symbol={selectedToken.symbol} />
+          <div className="h-6 w-6">
+            <TokenIcon symbol={selectedToken.symbol} />
+          </div>
           <span className="text-sm font-medium leading-[17px] text-grey-10">
             {selectedToken.symbol}
           </span>
@@ -48,7 +50,9 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokens, onSelectToken, selectedToke
                   onSelectToken(token);
                   setIsSelectOpen(false);
                 }}>
-                <TokenIcon symbol={token.symbol} />
+                <div className="h-6 w-6">
+                  <TokenIcon symbol={token.symbol} />
+                </div>
                 <span>{token.symbol}</span>
               </button>
             ))}

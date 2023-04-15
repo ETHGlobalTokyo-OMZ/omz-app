@@ -50,7 +50,7 @@ const Sell: NextPage = () => {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-grey-4">Price</label>
             <TokenInput placeholder="0">
-              <div className="flex-shrink-0">
+              <div className="h-6 w-6 flex-shrink-0">
                 <TokenIcon symbol="USDC" />
               </div>
             </TokenInput>
