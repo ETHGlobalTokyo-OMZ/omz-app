@@ -60,36 +60,36 @@ contract SellerVault is Types {
     ) internal view returns (bytes memory){
         return abi.encode(_order, _chainId, _nonce, _sig, action);
     }
-    
-    // function _callMailBox(bytes memory parameterBytes) internal {
-    //     uint32 polygonDomain = 80001;
-    //     address mailBox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
-    //     address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
-        
-    //     bytes32 mailID = IMailbox(mailBox).dispatch(
-    //         polygonDomain,
-    //         addressToBytes32(orderFactoryAddr),
-    //         parameterBytes
-    //     );
-        
-    //     IInterchainGasPaymaster(paymaster).payForGas{value: 0.2 ether}(mailID, polygonDomain, 900000, msg.sender);
-    // }
 
-    // total Gas Fee: 0.3
     function _callMailBox(bytes memory parameterBytes) internal {
+        uint32 polygonDomain = 80001;
         address mailBox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
         address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
-        for(uint256 i=0; i<chainIdList.length; i++){
-            uint32 domain = chainIdList[i];
-            address oracleFactory =  oracleFactorys[domain];
-            bytes32 mailID = IMailbox(mailBox).dispatch(
-                domain,
-                addressToBytes32(oracleFactory),
-                parameterBytes
-            );
-            IInterchainGasPaymaster(paymaster).payForGas{value: 0.1 ether}(mailID, polygonDomain, 900000, msg.sender);
-        }
+        
+        bytes32 mailID = IMailbox(mailBox).dispatch(
+            polygonDomain,
+            addressToBytes32(orderFactoryAddr),
+            parameterBytes
+        );
+        
+        IInterchainGasPaymaster(paymaster).payForGas{value: 0.2 ether}(mailID, polygonDomain, 900000, msg.sender);
     }
+
+    // total Gas Fee: 0.3
+    // function _callMailBox(bytes memory parameterBytes) internal {
+    //     address mailBox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
+    //     address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
+    //     for(uint256 i=0; i<chainIdList.length; i++){
+    //         uint32 domain = chainIdList[i];
+    //         address oracleFactory =  oracleFactorys[domain];
+    //         bytes32 mailID = IMailbox(mailBox).dispatch(
+    //             domain,
+    //             addressToBytes32(oracleFactory),
+    //             parameterBytes
+    //         );
+    //         IInterchainGasPaymaster(paymaster).payForGas{value: 0.1 ether}(mailID, polygonDomain, 900000, msg.sender);
+    //     }
+    // }
 
     function list_sell(Order memory _order, Sig memory sig) external payable {
         address sender = msg.sender;

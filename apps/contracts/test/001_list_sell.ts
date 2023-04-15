@@ -84,6 +84,7 @@ describe('SellerVault', async function () {
 
     let tx = await usdc.approve(sellerVault.address, (10 ** 18).toString());
     await tx.wait();
+    console.log(tx);
 
     // list_sell 내부에 orderFactory.create_escrow로 보내어주는 hyperLane 추가
     // sellerVault: 외부 체인 (Unstable 배포)

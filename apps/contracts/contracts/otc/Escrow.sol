@@ -7,9 +7,10 @@ import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./types.sol";
+import "../interfaces/IOrderFactory.sol";
 
 interface IEscrow {
-    function init(address _orderer, uint256 _amount) external;
+    function init(address _orderer, uint256 _amount, address orderFactoryAddr, address collarteralAddr) external;
     function resolve(IERC20 zkBOB) external;
     function terminate(uint256 lock_span, IERC20 zkBOB, address to) external;
 }
@@ -20,24 +21,33 @@ contract Escrow is Types, Ownable {
     address public orderer;
     uint256 public amount;
     uint256 public time_lock_start;
+    IOrderFactory public orderFactory;
+    IERC20 public collateral; 
 
-    function init(address _orderer, uint256 _amount) onlyOwner external {
+    function init(address _orderer, uint256 _amount, address orderFactoryAddr, address collarteralAddr) onlyOwner external {
         orderer = _orderer;
         amount = _amount;
         time_lock_start = block.timestamp;
+        orderFactory = IOrderFactory(orderFactoryAddr);
+        collateral = IERC20(collarteralAddr);
     }
 
-    function resolve(IERC20 zkBOB) onlyOwner external {
+    function deposit() external {
+        collateral.transferFrom(msg.sender, address(this), amount);
+        orderFactory.escrowDeposit(orderer, address(collateral), amount);
+    }
+
+    function resolve(IERC20 buyToken) onlyOwner external {
         uint256 _amount = amount;
-        require(zkBOB.balanceOf(address(this)) >= _amount, "not paid");
-        zkBOB.transfer(orderer, _amount);
+        require(buyToken.balanceOf(address(this)) >= _amount, "not paid");
+        buyToken.transfer(orderer, _amount);
         renounceOwnership();
     }
 
-    function terminate(uint256 lock_span, IERC20 zkBOB, address to) onlyOwner external {
+    function terminate(uint256 lock_span, IERC20 buyToken, address to) onlyOwner external {
         require(time_lock_start + lock_span < block.timestamp, "time lock");
-        uint256 balance = zkBOB.balanceOf(address(this));
-        if(balance != 0) zkBOB.transfer(to, balance);
+        uint256 balance = buyToken.balanceOf(address(this));
+        if(balance != 0) buyToken.transfer(to, balance);
         renounceOwnership();
     }
 }

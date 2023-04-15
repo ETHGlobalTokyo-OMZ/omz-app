@@ -45,7 +45,7 @@ const config: HardhatUserConfig = {
       url: node_url('goerli'),
       accounts: accounts('goerli'),
       chainId: 5,
-      gas: 8000000
+      gas: 7000000
     },
     optimism: {
       url: node_url('optimism'),

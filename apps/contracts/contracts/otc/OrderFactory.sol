@@ -15,6 +15,10 @@ contract OrderFactory is Types {
     IERC20 public collateral;
     uint256 public time_lock_span = 600;
     address constant mailbox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
+    address public owner;
+
+    mapping(address => bool) public eventAccess;
+    
 
     modifier onlyMailbox() {
         require(msg.sender == mailbox);
@@ -45,9 +49,26 @@ contract OrderFactory is Types {
     mapping(address => mapping(uint256 => mapping(uint256 => address))) public escrows;
 
     event Escrow_Create(bytes32 tradeID, address escrow, uint256 chainId, uint256 nonce, Order order);
+    event EscrowDeposit(address escrowAddr, address orderer, address tokenAddr, uint256 amount);
 
     constructor(IERC20 zkBoB) {
         collateral = zkBoB;
+        owner = msg.sender;
+    }
+
+    function escrowDeposit(address orderer, address tokenAddr, uint256 amount) external {
+        require(eventAccess[msg.sender], "Only Escrow contracts");
+        emit EscrowDeposit(msg.sender, orderer, tokenAddr, amount);
+    }
+
+    function set_time_lock_span(uint256 _time_lock_span) external {
+        require(owner == msg.sender, "only Owner");
+        time_lock_span = _time_lock_span;
+    }
+
+    function setOwner(address _owner) external {
+        require(owner == msg.sender, "only Owner");
+        owner = _owner;
     }
 
     function create_escrow(Order memory _order, uint256 _chainId, uint256 _nonce, Sig memory _sig) public {
@@ -58,8 +79,9 @@ contract OrderFactory is Types {
 
         IEscrow _escrow = IEscrow( address(new Escrow{salt: keccak256(abi.encode(_order, _chainId, _nonce, _sig))}()) );
         escrows[seller][_chainId][_nonce] = address(_escrow);
+        eventAccess[address(_escrow)] = true;
 
-        _escrow.init(seller, _order.bob_amount);
+        _escrow.init(seller, _order.bob_amount, address(this), address(collateral));
         bytes32 tradeID = keccak256(abi.encode(_order.to, _nonce));
         
         _order.time_lock_start = blockTimeStamp;

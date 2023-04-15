@@ -8,7 +8,7 @@ async function main() {
   const ERC20 = await ethers.getContractFactory("ERC20Custom");  
   const OrderFactory = await ethers.getContractFactory("OrderFactory");
 
-  const bob = await ERC20.deploy("BOB", "BOB", 18);
+  const bob = await ERC20.deploy("BUSD", "BUSD", 18);
   await bob.deployed();
 
   const orderFactory = await OrderFactory.deploy(bob.address);
