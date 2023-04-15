@@ -18,7 +18,7 @@ contract OrderFactory is Types {
 
     modifier onlyMailbox() {
         require(msg.sender == mailbox);
-        _;    
+        _;
     }
 
     function handle(
@@ -27,53 +27,77 @@ contract OrderFactory is Types {
         bytes calldata _body
     ) external onlyMailbox {
         (
-        Order memory _order,
-        uint256 _chainId, 
-        uint256 _nonce,
-        Sig memory _sig,
-        uint256 action
-        ) = abi.decode(_body, (Order, uint256, uint256, Sig, uint256));
-        
-        if(action == 0){
-            create_escrow(_order, _chainId, _nonce, _sig);
-        }else if(action == 1){
-            resolve_escrow(_order, _chainId, _nonce, _sig);
+            Order memory _order,
+            uint256 _chainId,
+            uint256 _nonce,
+            uint256 action
+        ) = abi.decode(_body, (Order, uint256, uint256, uint256));
+
+        if (action == 0) {
+            create_escrow(_order, _chainId, _nonce);
+        } else if (action == 1) {
+            resolve_escrow(_order, _chainId, _nonce);
         }
     }
 
     // eoa => chainid => nonce
-    mapping(address => mapping(uint256 => mapping(uint256 => address))) public escrows;
+    mapping(address => mapping(uint256 => mapping(uint256 => address)))
+        public escrows;
 
-    event Escrow_Create(bytes32 tradeID, address escrow, uint256 chainId, uint256 nonce, Order order);
+    event Escrow_Create(
+        bytes32 tradeID,
+        address escrow,
+        uint256 chainId,
+        uint256 nonce,
+        Order order
+    );
 
     constructor(IERC20 zkBoB) {
         collateral = zkBoB;
     }
 
-    function create_escrow(Order memory _order, uint256 _chainId, uint256 _nonce, Sig memory _sig) public {
+    function create_escrow(
+        Order memory _order,
+        uint256 _chainId,
+        uint256 _nonce,
+    ) public {
         uint256 blockTimeStamp = _order.time_lock_start;
         _order.time_lock_start = 0;
 
-        address seller = order_recover(_order, _chainId, _nonce, _sig);
+        address seller = order_recover(_order, _chainId, _nonce);
 
-        IEscrow _escrow = IEscrow( address(new Escrow{salt: keccak256(abi.encode(_order, _chainId, _nonce, _sig))}()) );
+        IEscrow _escrow = IEscrow(
+            address(
+                new Escrow{
+                    salt: keccak256(abi.encode(_order, _chainId, _nonce))
+                }()
+            )
+        );
         escrows[seller][_chainId][_nonce] = address(_escrow);
 
         _escrow.init(seller, _order.bob_amount);
         bytes32 tradeID = keccak256(abi.encode(_order.to, _nonce));
-        
+
         _order.time_lock_start = blockTimeStamp;
         emit Escrow_Create(tradeID, address(_escrow), _chainId, _nonce, _order);
     }
 
-    function resolve_escrow(Order memory _order, uint256 _chainId, uint256 _nonce, Sig memory _sig) public {
-        address seller = order_recover(_order, _nonce, _chainId, _sig);
-        IEscrow _escrow = IEscrow( escrows[seller][_chainId][_nonce] );
+    function resolve_escrow(
+        Order memory _order,
+        uint256 _chainId,
+        uint256 _nonce,
+    ) public {
+        address seller = order_recover(_order, _nonce, _chainId);
+        IEscrow _escrow = IEscrow(escrows[seller][_chainId][_nonce]);
         _escrow.resolve(collateral);
     }
 
-    function terminate_escrow(address seller, uint256 _chainId, uint256 _nonce) external {
-        IEscrow _escrow = IEscrow( escrows[seller][_chainId][_nonce] );
+    function terminate_escrow(
+        address seller,
+        uint256 _chainId,
+        uint256 _nonce
+    ) external {
+        IEscrow _escrow = IEscrow(escrows[seller][_chainId][_nonce]);
         _escrow.terminate(time_lock_span, collateral, msg.sender);
     }
 }
