@@ -18,7 +18,7 @@ const Home: NextPage = () => {
       <div className="flex items-center gap-2">
         <h1 className="text-[28px] leading-[42px] opacity-80">OTC market</h1>
         <span className="text-white/[.40] text-xs">|</span>
-        <h2>Buy</h2>
+        <h2 className="text-[18px]">Buy</h2>
       </div>
       <div>
         <table className="w-full">
