@@ -112,6 +112,7 @@ coverage.json
 scripts/generated
 .idea
 
+typechain-types/
 
 # OS or Editor folders
 .DS_Store
