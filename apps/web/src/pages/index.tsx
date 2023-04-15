@@ -22,63 +22,73 @@ const Home: NextPage = () => {
       </div>
       <div>
         <table className="w-full">
-          <tr className="bg-[#22252E] text-sm font-normal leading-[17px]">
-            <th className="py-3 px-4 text-left">Token</th>
-            <th className="py-3 px-4 text-left">Price</th>
-            <th className="py-3 px-4 text-left">Collateral</th>
-            <th className="py-3 px-4 text-left">Expiration Time</th>
-            <th className="py-3 px-4 text-left" />
-          </tr>
-          {marketList &&
-            marketList.map((market: any, index: number) => (
-              <tr>
-                <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-normal leading-[17px]">{index + 1}.</span>
-                    <TokenIcon symbol={market.sellTokenName} />
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[15px] font-normal leading-[17px]">{`${market.sellTokenAmount} ${market.sellTokenName}`}</span>
-                      <span className="text-[13px] font-normal leading-[13px] text-grey-4">
-                        {`On ${chainIdEnumToChainName[market.chainID]}`}
-                      </span>
+          <thead>
+            <tr className="bg-[#22252E] text-sm font-normal leading-[17px]">
+              <th className="py-3 px-4 text-left">Token</th>
+              <th className="py-3 px-4 text-left">Price</th>
+              <th className="py-3 px-4 text-left">Collateral</th>
+              <th className="py-3 px-4 text-left">Expiration Time</th>
+              <th className="py-3 px-4 text-left" />
+            </tr>
+          </thead>
+          <tbody>
+            {marketList &&
+              marketList.map((market: any, index: number) => (
+                <tr key={market._id}>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-normal leading-[17px]">{index + 1}.</span>
+                      <div className="h-6 w-6">
+                        <TokenIcon symbol={market.sellTokenName} />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[15px] font-normal leading-[17px]">{`${market.sellTokenAmount} ${market.sellTokenName}`}</span>
+                        <span className="text-[13px] font-normal leading-[13px] text-grey-4">
+                          {`On ${chainIdEnumToChainName[market.chainID]}`}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <TokenIcon symbol="USDC" />
-                    <div className="flex flex-col gap-1">
-                      <span className="font-normal leading-[17px]">{market.price}</span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6">
+                        <TokenIcon symbol="USDC" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-normal leading-[17px]">{market.price}</span>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <TokenIcon symbol={market.collateralTokenName} />
-                    <div className="flex flex-col gap-1">
-                      <span className="font-normal leading-[17px]">{`${market.collateralTokenAmount} ${market.collateralTokenName}`}</span>
-                      <span className="text-[13px] font-normal leading-[13px] text-grey-4">
-                        {`On ${chainIdEnumToChainName[market.chainID]}`}
-                      </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6">
+                        <TokenIcon symbol={market.collateralTokenName} />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-normal leading-[17px]">{`${market.collateralTokenAmount} ${market.collateralTokenName}`}</span>
+                        <span className="text-[13px] font-normal leading-[13px] text-grey-4">
+                          {`On ${chainIdEnumToChainName[market.chainID]}`}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center font-normal leading-[17px]">
-                    {dayjs(market.listingTimestamp).format('YYYY.MM.DD h:mm:ss A')}
-                  </div>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center justify-center">
-                    <button
-                      className="flex w-20 items-center justify-center rounded-[14px] bg-tint-blue py-2 text-sm font-semibold leading-[17px]"
-                      onClick={() => router.push(`/order?id=${market._id}`)}>
-                      Buy
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center font-normal leading-[17px]">
+                      {dayjs(market.listingTimestamp).format('YYYY.MM.DD h:mm:ss A')}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center justify-center">
+                      <button
+                        className="flex w-20 items-center justify-center rounded-[14px] bg-tint-blue py-2 text-sm font-semibold leading-[17px]"
+                        onClick={() => router.push(`/order?id=${market._id}`)}>
+                        Buy
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
         </table>
       </div>
     </div>

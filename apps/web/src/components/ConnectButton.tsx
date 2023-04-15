@@ -6,7 +6,6 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import ChevronDownBoldIcon from 'assets/chevron-down-bold.svg';
 import PowerIcon from 'assets/power.svg';
-import { Tooltip } from 'react-tooltip';
 
 const ConnectButton = () => {
   const { address, isConnected } = useAccount();
@@ -18,7 +17,7 @@ const ConnectButton = () => {
 
   if (isConnected) {
     return (
-      <div id="connect" className="relative">
+      <div className="group relative h-full cursor-pointer">
         <div className="flex items-center gap-2 rounded-full bg-grey-9 py-3 px-4 ">
           <span className="text-sm font-semibold leading-[142.34%] text-grey-2">
             {address && shortenAddress(address, 10)}
@@ -27,22 +26,16 @@ const ConnectButton = () => {
             <ChevronDownBoldIcon />
           </div>
         </div>
-        <Tooltip
-          anchorSelect="#connect"
-          clickable
-          place="bottom"
-          style={{
-            background: 'white',
-            borderRadius: '8px',
-            padding: 0
-          }}>
-          <button className="flex items-center gap-1.5 py-3 px-4" onClick={() => disconnect()}>
+        <div className="absolute bottom-0 right-0 z-10 hidden h-full w-[176px] translate-y-full cursor-pointer pt-2 group-hover:block">
+          <button
+            className="bg-white flex h-[44px] w-full items-center gap-1.5 rounded-lg py-3 px-4"
+            onClick={() => disconnect()}>
             <PowerIcon />
             <span className="text-black text-sm font-semibold leading-[142.34%]">
               Disconnect Wallet
             </span>
           </button>
-        </Tooltip>
+        </div>
       </div>
     );
   }

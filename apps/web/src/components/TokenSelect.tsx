@@ -43,6 +43,7 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokens, onSelectToken, selectedToke
           <div className="flex flex-col gap-4">
             {tokens.map((token) => (
               <button
+                key={token.address}
                 className="flex items-center gap-2 py-1"
                 onClick={() => {
                   onSelectToken(token);

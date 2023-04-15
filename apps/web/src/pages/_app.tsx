@@ -2,7 +2,7 @@ import { WagmiConfig, createClient, configureChains } from 'wagmi';
 
 import { publicProvider } from 'wagmi/providers/public';
 
-import { polygonZkEvmTestnet } from 'wagmi/chains';
+import { goerli, polygonMumbai } from 'wagmi/chains';
 
 import 'styles/globals.scss';
 import 'react-tooltip/dist/react-tooltip.css';
@@ -12,7 +12,7 @@ import Layout from 'components/Layout';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-  const { provider } = configureChains([polygonZkEvmTestnet], [publicProvider()]);
+  const { provider } = configureChains([goerli, polygonMumbai], [publicProvider()]);
 
   const queryClient = new QueryClient();
 
