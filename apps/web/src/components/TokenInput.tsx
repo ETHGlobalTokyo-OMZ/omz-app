@@ -11,13 +11,14 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const TokenInput = ({ className, inputClassName, children, ...props }: InputProps) => (
   <div
     className={twMerge(
-      'relative flex h-full w-full items-center rounded-[10px] bg-white p-4',
+      'bg-white relative flex h-full w-full items-center rounded-[10px] p-4',
       className
     )}>
     {children}
     <input
+      type="number"
       className={twMerge(
-        'w-full bg-transparent text-right text-black focus-visible:outline-none',
+        'bg-transparent text-black w-full text-right text-[20px] font-medium leading-[24px] placeholder:text-grey-3 focus-visible:outline-none',
         inputClassName
       )}
       {...props}

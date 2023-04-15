@@ -66,7 +66,8 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
       </div>
       <div className="flex w-full flex-col gap-9 py-10 px-6">
         <div className="flex items-center gap-3">
-          <SearchInput />
+          {/* <SearchInput /> */}
+          <div className="w-full" />
           <div
             className="flex h-[44px]
          w-[44px] flex-shrink-0 items-center justify-center rounded-full bg-[#22252E]">

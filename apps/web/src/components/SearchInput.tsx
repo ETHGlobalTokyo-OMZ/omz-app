@@ -19,7 +19,7 @@ const SearchInput = ({ className, inputClassName, ...props }: InputProps) => (
     <SearchIcon />
     <input
       className={twMerge(
-        'w-full bg-transparent text-sm text-white placeholder:text-[#C6C6C6] focus-visible:outline-none',
+        'bg-transparent text-white w-full text-sm placeholder:text-[#C6C6C6] focus-visible:outline-none',
         inputClassName
       )}
       {...props}
