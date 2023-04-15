@@ -52,6 +52,12 @@ const config: HardhatUserConfig = {
       accounts: accounts('optimism'),
       chainId: 420,
       gas: 8000000
+    },
+    scroll: {
+      url: node_url('scroll'),
+      accounts: accounts('scroll'),
+      chainId: 534353,
+      gas: 8000000
     }
   },
   mocha: {
