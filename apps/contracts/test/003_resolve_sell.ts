@@ -57,7 +57,7 @@ describe('SellerVault', async function () {
     const chain_id = 0;
 
     let order = {
-      to: buyer_stealth,
+      to: "0x0000000000000000000000000000000000000000",
       bob_amount: bob_amount,
       sell_token: coinAddr,
       sell_amount: eth_amount,
@@ -80,7 +80,9 @@ describe('SellerVault', async function () {
     // orderFactory: polygon 체인 (BOB 배포)
     let fee = 2 * 10 ** 17;
     let valueWithFee =  (Number(eth_amount) + fee).toString();
-    let tx = await sellerVault.resolve_sell(nonce, resolveSig, {value: valueWithFee});
+
+    let buyer = "0x4D1192CEf5f61dD30DAcaB176077Fb4D7bAa8875";
+    let tx = await sellerVault.resolve_sell(nonce, resolveSig, buyer, {value: valueWithFee});
     await tx.wait();
     console.log(tx);
   });

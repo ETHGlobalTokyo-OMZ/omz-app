@@ -18,7 +18,6 @@ contract OrderFactory is Types {
     address public owner;
 
     mapping(address => bool) public eventAccess;
-    
 
     modifier onlyMailbox() {
         require(msg.sender == mailbox);

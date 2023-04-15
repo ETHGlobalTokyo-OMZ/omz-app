@@ -58,7 +58,7 @@ describe('SellerVault', async function () {
     const chain_id = 0;
 
     let order = {
-      to: buyer_stealth,
+      to: "0x0000000000000000000000000000000000000000",
       bob_amount: bob_amount,
       sell_token: coinAddr,
       sell_amount: eth_amount,

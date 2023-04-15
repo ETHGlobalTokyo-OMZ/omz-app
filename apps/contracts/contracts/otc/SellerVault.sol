@@ -25,9 +25,9 @@ contract SellerVault is Types {
     mapping(uint32 => address) public oracleFactorys;
     uint32[] public chainIds;
 
-
-    event ListSell(bytes32 tradeID, address seller, uint256 chainId, uint256 nonce, Order order, Sig sig);
-    event ResolveSell(address seller, uint256 nonce, uint256 chainId, Order order, Sig sig);
+    event ListSell(bytes32 tradeID, address seller, uint256 chainId, uint256 nonce, Order order, Sig sig, bytes32 mailID);
+    event ResolveSell(address seller, uint256 nonce, uint256 chainId, Order order, Sig sig, bytes32 mailID);
+    event HyperlaneRelay(bytes32 mailID);
 
     constructor(uint256 _chainId, address _orderFactoryAddr) {
         chainId = _chainId;
@@ -61,7 +61,7 @@ contract SellerVault is Types {
         return abi.encode(_order, _chainId, _nonce, _sig, action);
     }
 
-    function _callMailBox(bytes memory parameterBytes) internal {
+    function _callMailBox(bytes memory parameterBytes) internal returns (bytes32) {
         uint32 polygonDomain = 80001;
         address mailBox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
         address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
@@ -73,6 +73,7 @@ contract SellerVault is Types {
         );
         
         IInterchainGasPaymaster(paymaster).payForGas{value: 0.2 ether}(mailID, polygonDomain, 900000, msg.sender);
+        return mailID;
     }
 
     // total Gas Fee: 0.3
@@ -102,27 +103,39 @@ contract SellerVault is Types {
 
         uint256 _nonce = _insert_order(sender, _order);
         require(sender == order_recover(_order, chainId, _nonce, sig), "list_sig");
-
-        _order.time_lock_start = block.timestamp;
         bytes32 tradeID = keccak256(abi.encode(_order.to, _nonce));
-        emit ListSell(tradeID, sender, chainId, _nonce, _order, sig);
 
         // call to OrderFacotry Contract through hyperlane
-        _order.time_lock_start = 0;     
+        _order.time_lock_start = 0;
         bytes memory parameterBytes = encodeParameters(_order, chainId, _nonce, sig, 0);
-        _callMailBox(parameterBytes);
+        bytes32 mailID = _callMailBox(parameterBytes);
+
+        _order.time_lock_start = block.timestamp;
+        emit ListSell(tradeID, sender, chainId, _nonce, _order, sig, mailID);
     }
 
-    function resolve_sell(uint256 _nonce, Sig memory sig) external payable {
+    function resolve_sell(uint256 _nonce, Sig memory sig, address _to) external payable {
         address sender = msg.sender;
         Order memory _order = order_db[sender][_nonce];
         require(block.timestamp <= _order.time_lock_start+time_lock_span, "resolve_sell: time lock");
 
+        uint256 tmp = _order.time_lock_start;
+        _order.time_lock_start = 0;
+        address to;
+
+        if(sender == order_recover(_order, _nonce, chainId, sig)){
+            if(_order.to == address(0)){
+                to = _to;
+            }else {
+                to = _order.to;
+            }
+        }
+        
         if(_order.sell_token == coinAddr){
             require(msg.value >= _order.sell_amount, "lack of sell amount");
-            payable(_order.to).transfer(_order.sell_amount);
+            payable(to).transfer(_order.sell_amount);
         }else {
-            IERC20(_order.sell_token).transferFrom(sender, _order.to, _order.sell_amount);
+            IERC20(_order.sell_token).transferFrom(sender, to, _order.sell_amount);
         }
 
         if(_order.collateral_token == coinAddr) {
@@ -131,22 +144,22 @@ contract SellerVault is Types {
             IERC20(_order.collateral_token).transfer(sender, _order.collateral_amount);
         }
 
-        uint256 tmp = _order.time_lock_start;
-        _order.time_lock_start = 0;
+        // tmp = _order.time_lock_start;
+        // _order.time_lock_start = 0;
+        
         require(sender == order_recover(_order, _nonce, chainId, sig), "sell_sig");
-        _order.time_lock_start = tmp;
-
-        emit ResolveSell(sender, chainId, _nonce, _order, sig);
-
-        _order.time_lock_start = 0;
+        
         bytes memory parameterBytes = encodeParameters(_order, chainId, _nonce, sig, 1);
-        _callMailBox(parameterBytes);
+        bytes32 mailID = _callMailBox(parameterBytes);
+
+        _order.time_lock_start = tmp;
+        _order.to = to;
+        emit ResolveSell(sender, _nonce, chainId, _order, sig, mailID);
     }
 
     function delete_sell(address orderer, uint256 _nonce) external {
         Order memory _order = order_db[orderer][_nonce];
         require(_order.time_lock_start+time_lock_span < block.timestamp, "delete_sell: time lock");
-
         _delete_order(orderer, _nonce);
     }
 
