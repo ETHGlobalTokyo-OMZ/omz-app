@@ -12843,10 +12843,10 @@ oboe@2.1.5:
   dependencies:
     http-https "^1.0.0"
 
-omz-module@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/omz-module/-/omz-module-1.0.6.tgz#bac26c7b4f927f62475ecd8036c6fa1b67b055b7"
-  integrity sha512-CT75ivyubiWPaDgCKhXVo6iI0IYkkDTQUJM7bYN6T2OV+CVJdQuYJdJESpPDxqRKQ7TG27I/T+w2l+ruNfs6Yg==
+omz-module@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/omz-module/-/omz-module-1.1.5.tgz#9962367e6c9fa577ed93e59a07b37cc2facc22f0"
+  integrity sha512-sWxvIUK+o7p+FfrBssUGOQAQE7IWPPsKUlovWIDFoyvEFT+unPI5lO1L7Re63vJulXHWemqJbb+spImqQIKvFg==
 
 on-exit-leak-free@^0.2.0:
   version "0.2.0"

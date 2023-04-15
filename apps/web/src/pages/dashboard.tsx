@@ -3,9 +3,10 @@ import { NextPage } from 'next';
 
 import ArrowLeftRightIcon from 'assets/arrow-left-right.svg';
 import DollarSignIcon from 'assets/dollar-sign.svg';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import TokenIcon from 'components/TokenIcon';
+import { useRouter } from 'next/router';
 
 enum TabId {
   Buyer = 0,
@@ -14,6 +15,17 @@ enum TabId {
 
 const Dashboard: NextPage = () => {
   const [tabId, setTabId] = useState<TabId>(TabId.Buyer);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.tab) {
+      if (router.query.tab === 'buyer') {
+        setTabId(TabId.Buyer);
+      } else if (router.query.tab === 'seller') {
+        setTabId(TabId.Seller);
+      }
+    }
+  }, [router.query]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,7 +37,7 @@ const Dashboard: NextPage = () => {
               'flex w-[114px] items-center justify-center rounded-tl-[4px] border-b border-tint-blue bg-grey-9 py-1.5 leading-[24px] text-tint-blue',
               tabId === TabId.Buyer && 'text-white bg-tint-blue font-semibold'
             )}
-            onClick={() => setTabId(TabId.Buyer)}>
+            onClick={() => router.push('/dashboard?tab=buyer')}>
             Buyer
           </button>
           <button
@@ -33,7 +45,7 @@ const Dashboard: NextPage = () => {
               'flex w-[114px] items-center justify-center rounded-tr-[4px] border-b border-tint-blue bg-grey-9 py-1.5 leading-[24px] text-tint-blue',
               tabId === TabId.Seller && 'text-white bg-tint-blue font-semibold'
             )}
-            onClick={() => setTabId(TabId.Seller)}>
+            onClick={() => router.push('/dashboard?tab=seller')}>
             Seller
           </button>
         </div>
@@ -108,7 +120,8 @@ const Dashboard: NextPage = () => {
                   className={twMerge(
                     'flex items-center gap-1 rounded-[14px] bg-tint-pink py-2.5 px-3 text-sm font-semibold leading-[17px]',
                     'text-white/30 bg-[#595959]'
-                  )}>
+                  )}
+                  onClick={() => router.push('/deposit')}>
                   <DollarSignIcon />
                   <span>Deposit</span>
                 </button>

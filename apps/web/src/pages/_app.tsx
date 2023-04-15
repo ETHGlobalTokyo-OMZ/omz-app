@@ -9,6 +9,7 @@ import 'styles/globals.scss';
 import type { AppProps } from 'next/app';
 import Layout from 'components/Layout';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { InjectedConnector } from 'wagmi/connectors/injected';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { provider } = configureChains([goerli, polygonMumbai], [publicProvider()]);
@@ -18,6 +19,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   // Set up client
   const client = createClient({
     autoConnect: true,
+    connectors: [new InjectedConnector({ chains: [goerli, polygonMumbai] })],
     provider
   });
   return (

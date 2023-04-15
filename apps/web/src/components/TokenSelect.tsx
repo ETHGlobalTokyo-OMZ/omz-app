@@ -1,14 +1,14 @@
 import { FC, useState } from 'react';
 import Modal from 'react-modal';
 import ChevronDown from 'assets/chevron-down.svg';
-import { Token } from 'types';
 import CloseIcon from 'assets/close.svg';
+import { IContract } from 'omz-module';
 import TokenIcon from './TokenIcon';
 
 interface TokenSelectProps {
-  tokens: Token[];
-  onSelectToken: (token: Token) => void;
-  selectedToken: Token;
+  tokens: IContract[];
+  onSelectToken: (token: IContract) => void;
+  selectedToken: IContract;
 }
 
 const TokenSelect: FC<TokenSelectProps> = ({ tokens, onSelectToken, selectedToken }) => {
@@ -19,10 +19,10 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokens, onSelectToken, selectedToke
       <button className="flex items-center gap-2" onClick={() => setIsSelectOpen(!isSelectOpen)}>
         <div className="flex items-center gap-1">
           <div className="h-6 w-6">
-            <TokenIcon symbol={selectedToken.symbol} />
+            <TokenIcon symbol={selectedToken.tokenName} />
           </div>
           <span className="text-sm font-medium leading-[17px] text-grey-10">
-            {selectedToken.symbol}
+            {selectedToken.tokenName}
           </span>
         </div>
         <ChevronDown />
@@ -50,9 +50,9 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokens, onSelectToken, selectedToke
                   setIsSelectOpen(false);
                 }}>
                 <div className="h-6 w-6">
-                  <TokenIcon symbol={token.symbol} />
+                  <TokenIcon symbol={token.tokenName} />
                 </div>
-                <span>{token.symbol}</span>
+                <span>{token.tokenName}</span>
               </button>
             ))}
           </div>

@@ -11,7 +11,6 @@ import DashboardIcon from 'assets/dashboard.svg';
 import ChevronRightIcon from 'assets/chevron-right.svg';
 import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
-import { useQuery } from 'react-query';
 import { getNotifications } from 'queries/notification';
 import { useAccount } from 'wagmi';
 
@@ -19,42 +18,28 @@ const ConnectButton = dynamic(() => import('./ConnectButton'), {
   ssr: false
 });
 
-const notifications = [
-  {
-    message: 'A buyer accepted your selling item'
-  },
-  {
-    message: 'Order completed'
-  },
-  {
-    message: 'Please deliver the token within 24 hours'
-  },
-  {
-    message: 'The deadline has expired and the deposit has been transferred to the buyer'
-  },
-  {
-    message: 'You may claim the deposit as the seller has not sent the item. Please confirm.'
-  }
-];
+interface Notification {
+  message: string;
+}
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
   const { address } = useAccount();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const notifcationViewRef = useRef<HTMLElement>(null);
+  const notifcationViewRef = useRef<HTMLDivElement>(null);
 
-  const isBuyPage = router.pathname === '/' || router.pathname.startsWith('/buy');
+  const isBuyPage = router.pathname === '/' || router.pathname.startsWith('/order');
   const isSellPage = router.pathname.startsWith('/sell');
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      if (address) {
-        const newNotifications = await getNotifications(address);
-        console.log('noti', newNotifications);
-      }
-    })();
+    if (address) {
+      getNotifications(address).then((res) => {
+        setNotifications(res);
+      });
+    }
   }, [address]);
 
   return (

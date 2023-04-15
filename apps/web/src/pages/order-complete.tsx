@@ -16,7 +16,9 @@ const OrderComplete: NextPage = () => {
       </button>
       <div className="flex h-full w-full flex-col items-center justify-center">
         <h2 className="text-[28px] font-semibold leading-[142.34%]">Order completed!</h2>
-        <PrimaryButton className="w-full max-w-[428px]" onClick={() => router.push('/dashboard')}>
+        <PrimaryButton
+          className="w-full max-w-[428px]"
+          onClick={() => router.push('/dashboard?tab=buyer')}>
           Go to dashboard
         </PrimaryButton>
       </div>
