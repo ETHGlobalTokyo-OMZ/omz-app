@@ -26,4 +26,18 @@ contract Escrow is Types, Ownable {
         amount = _amount;
         time_lock_start = block.timestamp;
     }
+
+    function resolve(IERC20 zkBOB) onlyOwner external {
+        uint256 _amount = amount;
+        require(zkBOB.balanceOf(address(this)) == _amount, "not paid");
+        zkBOB.transfer(orderer, _amount);
+        renounceOwnership();
+    }
+
+    function terminate(uint256 lock_span, IERC20 zkBOB, address to) onlyOwner external {
+        require(time_lock_start + lock_span < block.timestamp, "time lock");
+        uint256 balance = zkBOB.balanceOf(address(this));
+        if(balance != 0) zkBOB.transfer(to, balance);
+        renounceOwnership();
+    }
 }
