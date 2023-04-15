@@ -1,62 +1,68 @@
-import 'solidity-coverage';
-import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-ethers';
-import { HardhatUserConfig } from 'hardhat/types';
-import '@typechain/hardhat';
-import 'hardhat-gas-reporter';
-import '@nomiclabs/hardhat-etherscan';
-import { config as dotenvConfig } from 'dotenv';
-import { resolve } from 'path';
-// proxy
-import '@openzeppelin/hardhat-upgrades';
-import 'hardhat-contract-sizer';
+import { HardhatUserConfig } from "hardhat/config";
+import {node_url, accounts} from './utils/network';
+import "@nomicfoundation/hardhat-toolbox";
+import "hardhat-tracer";
 
-dotenvConfig({ path: resolve(__dirname, './.env') });
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY || 'privatKey';
-// const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || '';
-
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
 const config: HardhatUserConfig = {
-  defaultNetwork: 'hardhat',
-  networks: {
-    hardhat: {
-      chainId: 31337,
-      allowUnlimitedContractSize: true,
-    },
-    localhost: {
-      chainId: 31337,
-      allowUnlimitedContractSize: true,
-    },
-    zkEVM: {
-      url: `https://rpc.public.zkevm-test.net`,
-      accounts: [PRIVATE_KEY],
-    },
-  },
+  solidity: "0.8.1",
   solidity: {
     compilers: [
       {
-        version: '0.8.9',
+        version: "0.8.1",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
-          },
-        },
+            runs: 1000
+          }
+        }
       },
-    ],
+      {
+        version: "0.6.0",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1000
+          }
+        }
+      }
+    ]
   },
-  gasReporter: {
-    enabled: true,
-    currency: 'USD',
-    outputFile: 'gas-report.txt',
-    noColors: true,
+  networks: {
+    hardhat: {},
+    localhost: {
+      url: node_url('localhost'),
+      chainId: 31337
+    },
+    polygonTestnet:{
+      url: node_url('polygonTestnet'),
+      accounts: accounts('polygonTestnet'),
+      chainId: 80001,
+      gas: 8000000,
+      timeout: 10000000000
+    },
+    goerli: {
+      url: node_url('goerli'),
+      accounts: accounts('goerli'),
+      chainId: 5,
+      gas: 7000000
+    },
+    optimism: {
+      url: node_url('optimism'),
+      accounts: accounts('optimism'),
+      chainId: 420,
+      gas: 8000000
+    },
+    scroll: {
+      url: node_url('scroll'),
+      accounts: accounts('scroll'),
+      chainId: 534353,
+      gas: 8000000
+    }
   },
-  typechain: {
-    outDir: 'typechain',
-    target: 'ethers-v5',
-  },
+  mocha: {
+    timeout: 100000000
+  }
 };
 
 export default config;
