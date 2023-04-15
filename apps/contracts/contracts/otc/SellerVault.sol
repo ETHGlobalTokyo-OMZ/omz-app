@@ -6,6 +6,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./types.sol";
+import "../interfaces/IMailbox.sol";
+import "../interfaces/IInterchainGasPaymaster.sol";
 
 contract SellerVault is Types {
     using SafeERC20 for IERC20;
@@ -29,6 +31,33 @@ contract SellerVault is Types {
         orderFactoryAddr = _orderFactoryAddr;
     }
 
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    function encodeParameters(
+        Order memory _order,
+        uint256 _chainId,
+        uint256 _nonce,
+        Sig memory _sig,
+        uint256 action
+    ) internal view returns (bytes memory){
+        return abi.encode(_order, _chainId, _nonce, _sig, action);
+    }
+
+    function _callMailBox(bytes memory parameterBytes) internal {
+        uint32 polygonDomain = 80001;
+        address goerliMailbox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
+        address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
+        bytes32 mailID = IMailbox(goerliMailbox).dispatch(
+            polygonDomain,
+            addressToBytes32(orderFactoryAddr),
+            parameterBytes
+        );
+        
+        IInterchainGasPaymaster(paymaster).payForGas{value: 0.2 ether}(mailID, polygonDomain, 900000, msg.sender);
+    }
+
     function list_sell(Order memory _order, Sig memory sig) external payable {
         address sender = msg.sender;
 
@@ -45,6 +74,10 @@ contract SellerVault is Types {
         bytes32 tradeID = keccak256(abi.encode(_order.to, _nonce));
         emit ListSell(tradeID, sender, chainId, _nonce, _order, sig);
 
+        // call to OrderFacotry Contract through hyperlane
+        _order.time_lock_start = 0;     
+        bytes memory parameterBytes = encodeParameters(_order, chainId, _nonce, sig, 0);
+        _callMailBox(parameterBytes);
     }
 
     function resolve_sell(uint256 _nonce, Sig memory sig) external payable {
@@ -71,11 +104,16 @@ contract SellerVault is Types {
         _order.time_lock_start = tmp;
 
         emit ResolveSell(sender, chainId, _nonce, _order, sig);
+
+        _order.time_lock_start = 0;
+        bytes memory parameterBytes = encodeParameters(_order, chainId, _nonce, sig, 1);
+        _callMailBox(parameterBytes);
     }
 
     function delete_sell(address orderer, uint256 _nonce) external {
         Order memory _order = order_db[orderer][_nonce];
         require(_order.time_lock_start+time_lock_span < block.timestamp, "delete_sell: time lock");
+
         _delete_order(orderer, _nonce);
     }
 
