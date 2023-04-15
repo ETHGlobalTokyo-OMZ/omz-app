@@ -13,15 +13,18 @@ contract SellerVault is Types {
     using SafeERC20 for IERC20;
 
     address constant coinAddr = address(0);
-
     address public orderFactoryAddr;
     uint256 public chainId;
+    address public owner;
     IERC20 public collateral;
 
     uint256 public time_lock_span = 600;
 
     mapping(address => uint256) public user_nonce;
     mapping(address => mapping(uint256 => Order)) public order_db;
+    mapping(uint32 => address) public oracleFactorys;
+    uint32[] public chainIds;
+
 
     event ListSell(bytes32 tradeID, address seller, uint256 chainId, uint256 nonce, Order order, Sig sig);
     event ResolveSell(address seller, uint256 nonce, uint256 chainId, Order order, Sig sig);
@@ -29,6 +32,19 @@ contract SellerVault is Types {
     constructor(uint256 _chainId, address _orderFactoryAddr) {
         chainId = _chainId;
         orderFactoryAddr = _orderFactoryAddr;
+        owner = msg.sender;
+    }
+    
+    function setOwner(address _owner) external {
+        require(owner == msg.sender, "err: not Owner");
+        owner = _owner;
+    }
+
+    function setOracleFactorys(uint32[] memory chainIdList, address[] memory oracleFactoryList) external {
+        require(owner == msg.sender, "err: not Owner");
+        for(uint256 i=0; i<chainIdList.length; i++){
+            oracleFactorys[chainIdList[i]] = oracleFactoryList[i];
+        }
     }
 
     function addressToBytes32(address _addr) internal pure returns (bytes32) {
@@ -44,18 +60,35 @@ contract SellerVault is Types {
     ) internal view returns (bytes memory){
         return abi.encode(_order, _chainId, _nonce, _sig, action);
     }
-
-    function _callMailBox(bytes memory parameterBytes) internal {
-        uint32 polygonDomain = 80001;
-        address goerliMailbox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
-        address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
-        bytes32 mailID = IMailbox(goerliMailbox).dispatch(
-            polygonDomain,
-            addressToBytes32(orderFactoryAddr),
-            parameterBytes
-        );
+    
+    // function _callMailBox(bytes memory parameterBytes) internal {
+    //     uint32 polygonDomain = 80001;
+    //     address mailBox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
+    //     address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
         
-        IInterchainGasPaymaster(paymaster).payForGas{value: 0.2 ether}(mailID, polygonDomain, 900000, msg.sender);
+    //     bytes32 mailID = IMailbox(mailBox).dispatch(
+    //         polygonDomain,
+    //         addressToBytes32(orderFactoryAddr),
+    //         parameterBytes
+    //     );
+        
+    //     IInterchainGasPaymaster(paymaster).payForGas{value: 0.2 ether}(mailID, polygonDomain, 900000, msg.sender);
+    // }
+
+    // total Gas Fee: 0.3
+    function _callMailBox(bytes memory parameterBytes) internal {
+        address mailBox = 0xCC737a94FecaeC165AbCf12dED095BB13F037685;
+        address paymaster = 0x8f9C3888bFC8a5B25AED115A82eCbb788b196d2a;
+        for(uint256 i=0; i<chainIdList.length; i++){
+            uint32 domain = chainIdList[i];
+            address oracleFactory =  oracleFactorys[domain];
+            bytes32 mailID = IMailbox(mailBox).dispatch(
+                domain,
+                addressToBytes32(oracleFactory),
+                parameterBytes
+            );
+            IInterchainGasPaymaster(paymaster).payForGas{value: 0.1 ether}(mailID, polygonDomain, 900000, msg.sender);
+        }
     }
 
     function list_sell(Order memory _order, Sig memory sig) external payable {
@@ -86,7 +119,7 @@ contract SellerVault is Types {
         require(block.timestamp <= _order.time_lock_start+time_lock_span, "resolve_sell: time lock");
 
         if(_order.sell_token == coinAddr){
-            require(msg.value == _order.sell_amount, "lack of sell amount");
+            require(msg.value >= _order.sell_amount, "lack of sell amount");
             payable(_order.to).transfer(_order.sell_amount);
         }else {
             IERC20(_order.sell_token).transferFrom(sender, _order.to, _order.sell_amount);

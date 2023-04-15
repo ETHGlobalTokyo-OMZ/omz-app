@@ -30,7 +30,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {},
-    localhost : {
+    localhost: {
       url: node_url('localhost'),
       chainId: 31337
     },
@@ -45,6 +45,12 @@ const config: HardhatUserConfig = {
       url: node_url('goerli'),
       accounts: accounts('goerli'),
       chainId: 5,
+      gas: 8000000
+    },
+    optimism: {
+      url: node_url('optimism'),
+      accounts: accounts('optimism'),
+      chainId: 420,
       gas: 8000000
     }
   },

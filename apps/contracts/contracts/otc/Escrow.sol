@@ -29,7 +29,7 @@ contract Escrow is Types, Ownable {
 
     function resolve(IERC20 zkBOB) onlyOwner external {
         uint256 _amount = amount;
-        require(zkBOB.balanceOf(address(this)) == _amount, "not paid");
+        require(zkBOB.balanceOf(address(this)) >= _amount, "not paid");
         zkBOB.transfer(orderer, _amount);
         renounceOwnership();
     }
