@@ -9,7 +9,7 @@ const PrimaryButton: FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
 }) => (
   <button
     className={twMerge(
-      'mt-8 flex items-center justify-center rounded-lg bg-[#2864FF] py-4',
+      'mt-8 flex items-center justify-center rounded-lg bg-[#2864FF] py-4 disabled:cursor-not-allowed disabled:bg-grey-5',
       className
     )}
     {...props}>

@@ -14,10 +14,16 @@ const SellComplete: NextPage = () => {
         <ArrowLeftTornadoIcon />
         <span className="text-xl font-semibold leading-[30px]">Back to Listing</span>
       </button>
-      <div className="flex h-full w-full flex-col items-center justify-center">
-        <h2 className="text-[28px] font-semibold leading-[142.34%]">Listing completed!</h2>
+      <div className="g flex h-full w-full flex-col items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="text-[28px] font-semibold leading-[142.34%]">Listing completed!</h2>
+          <p className="text-center leading-[27px] text-grey-2">
+            Deposit token within 24 hrs after buyer ordered. If not, collateral will be transfered
+            to buyer. <br /> We'll send notificiation to help you meet the deadline.
+          </p>
+        </div>
         <PrimaryButton
-          className="w-full max-w-[428px]"
+          className="mt-[52px] w-full max-w-[428px]"
           onClick={() => router.push('/dashboard?tab=seller')}>
           Go to dashboard
         </PrimaryButton>

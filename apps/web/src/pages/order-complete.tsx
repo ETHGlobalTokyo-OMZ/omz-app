@@ -15,9 +15,15 @@ const OrderComplete: NextPage = () => {
         <span className="text-xl font-semibold leading-[30px]">Back to OTC Market</span>
       </button>
       <div className="flex h-full w-full flex-col items-center justify-center">
-        <h2 className="text-[28px] font-semibold leading-[142.34%]">Order completed!</h2>
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="text-[28px] font-semibold leading-[142.34%]">Order completed!</h2>
+          <p className="text-center leading-[27px] text-grey-2">
+            If seller doesn't transfer the token to you within 24 hrs, <br />
+            you can claim the collateral on dashboard.
+          </p>
+        </div>
         <PrimaryButton
-          className="w-full max-w-[428px]"
+          className="mt-[52px] w-full max-w-[428px]"
           onClick={() => router.push('/dashboard?tab=buyer')}>
           Go to dashboard
         </PrimaryButton>

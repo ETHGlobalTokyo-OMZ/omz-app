@@ -13,12 +13,15 @@ import { useRouter } from 'next/router';
 import { twMerge } from 'tailwind-merge';
 import { getNotifications } from 'queries/notification';
 import { useAccount } from 'wagmi';
+import OMZLogo from 'assets/omz-logo.svg';
 
 const ConnectButton = dynamic(() => import('./ConnectButton'), {
   ssr: false
 });
 
 interface Notification {
+  sid: string;
+  title: string;
   message: string;
 }
 
@@ -53,8 +56,9 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
         }
       }}>
       <div className="flex w-full max-w-[240px] flex-col bg-[#242731] px-4 py-9">
-        <Link href="/" className="px-2.5 text-2xl font-bold leading-[142.34%]">
-          OMZ
+        <Link href="/" className="flex items-center gap-2 text-2xl font-bold leading-[142.34%]">
+          <OMZLogo />
+          <span>OMZ</span>
         </Link>
         <div className="mt-36 flex w-full flex-col gap-10">
           <div>
@@ -120,10 +124,10 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                 <div className="flex flex-col gap-4">
                   {notifications.map((notification, index) => (
                     <div
-                      key={`${index}${notification.message}`}
+                      key={`${index}${notification.sid}`}
                       className="flex items-center justify-between gap-6">
                       <div className="flex items-center gap-1.5">
-                        <span className="leadning-[13px] text-[11px]">{notification.message}</span>
+                        <span className="leadning-[13px] text-[12px]">{notification.title}</span>
                       </div>
                       <Link
                         href="/dashboard"
